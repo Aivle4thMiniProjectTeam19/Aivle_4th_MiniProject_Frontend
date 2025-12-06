@@ -1,5 +1,5 @@
 // src/pages/BookFormPage.jsx
-import { Container, TextField, Button, Typography, Stack } from "@mui/material";
+import { Container, TextField, Button, Typography, Stack, Paper, Divider } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import api from "../app/axios";
@@ -48,68 +48,85 @@ export default function BookFormPage() {
 
     return (
         <Container maxWidth="sm" sx={{ marginTop: 4 }}>
-            <Typography variant="h4" gutterBottom>
-                신규 도서 등록
-            </Typography>
-
-            <Stack spacing={3}>
-                <TextField
-                    label="도서 제목"
-                    name="title"
-                    variant="outlined"
-                    fullWidth
-                    required
-                    value={form.title}
-                    onChange={handleChange}
-                />
-                <TextField
-                    label="저자"
-                    name="author"
-                    variant="outlined"
-                    fullWidth
-                    required
-                    value={form.author}
-                    onChange={handleChange}
-                />
-                <TextField
-                    label="카테고리"
-                    name="category"
-                    variant="outlined"
-                    fullWidth
-                    value={form.category}
-                    onChange={handleChange}
-                />
-                <TextField
-                    label="내용 소개"
-                    name="description"
-                    variant="outlined"
-                    fullWidth
-                    multiline
-                    rows={4}
-                    value={form.description}
-                    onChange={handleChange}
-                />
-
-                <Stack direction="row" spacing={2}>
-                    <Button
-                        variant="contained"
-                        color="primary"
-                        size="large"
-                        onClick={handleSubmit}
-                        disabled={submitting}
-                    >
-                        {submitting ? "등록 중..." : "등록하기"}
-                    </Button>
-                    <Button
-                        variant="outlined"
-                        color="secondary"
-                        size="large"
-                        onClick={() => navigate("/books")}
-                    >
-                        취소
-                    </Button>
+            <Paper
+                elevation={0}
+                sx={{
+                    p: { xs: 3, md: 4 },
+                    borderRadius: 4,
+                    border: "1px solid #e5e7eb",
+                    boxShadow: "0 12px 28px rgba(15, 23, 42, 0.08)",
+                    backgroundColor: "#fff",
+                }}
+            >
+                <Stack spacing={2}>
+                    <Typography variant="h4" fontWeight={800}>
+                        신규 도서 등록
+                    </Typography>
+                    <Typography color="text.secondary">
+                        도서 정보를 입력하면 목록에 자동으로 추가됩니다. 제목과 저자 정보를 잊지 말고 입력해 주세요.
+                    </Typography>
+                    <Divider />
                 </Stack>
-            </Stack>
+
+                <Stack spacing={3} sx={{ mt: 3 }}>
+                    <TextField
+                        label="도서 제목"
+                        name="title"
+                        variant="outlined"
+                        fullWidth
+                        required
+                        value={form.title}
+                        onChange={handleChange}
+                    />
+                    <TextField
+                        label="저자"
+                        name="author"
+                        variant="outlined"
+                        fullWidth
+                        required
+                        value={form.author}
+                        onChange={handleChange}
+                    />
+                    <TextField
+                        label="카테고리"
+                        name="category"
+                        variant="outlined"
+                        fullWidth
+                        value={form.category}
+                        onChange={handleChange}
+                    />
+                    <TextField
+                        label="내용 소개"
+                        name="description"
+                        variant="outlined"
+                        fullWidth
+                        multiline
+                        rows={4}
+                        value={form.description}
+                        onChange={handleChange}
+                    />
+
+                    <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            size="large"
+                            onClick={handleSubmit}
+                            disabled={submitting}
+                        >
+                            {submitting ? "등록 중..." : "등록하기"}
+                        </Button>
+                        <Button
+                            variant="outlined"
+                            color="secondary"
+                            size="large"
+                            onClick={() => navigate("/books")}
+                        >
+                            취소
+                        </Button>
+                    </Stack>
+                </Stack>
+            </Paper>
         </Container>
     );
 }
