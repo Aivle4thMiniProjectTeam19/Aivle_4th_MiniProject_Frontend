@@ -32,7 +32,6 @@ export default function BookDetailPage() {
     if (error) return <div style={{ padding: 20, color: "red" }}>{error}</div>;
     if (!book) return <div style={{ padding: 20 }}>책을 찾을 수 없습니다.</div>;
 
-    
     return (
         <Container maxWidth="md" sx={{ marginTop: 4 }}>
             <Paper
