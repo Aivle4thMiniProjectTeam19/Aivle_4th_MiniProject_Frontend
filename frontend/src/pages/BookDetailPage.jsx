@@ -1,62 +1,88 @@
+// src/pages/BookDetailPage.jsx
 import { useParams, useNavigate } from "react-router-dom";
-import { Container, Typography, Button, Paper } from "@mui/material";
-
-// 데이터를 보여주기 위해 리스트 페이지에 있던 가짜 데이터를 가져왔습니다.
-// (나중에는 서버에서 id로 조회해서 가져오는 방식으로 바뀝니다)
-const mockBooksData = [
-    {
-        id: 1,
-        title: "작가의 산책",
-        content: "이 책은 작가가 숲을 산책하며 느낀 감정을 담은 에세이입니다...",
-        createdAt: "2025-12-04",
-        coverUrl: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=500&auto=format&fit=crop&q=60", // 이미지를 좀 크게 봅니다
-    },
-    {
-        id: 2,
-        title: "겨울의 기록",
-        content: "추운 겨울, 따뜻한 커피 한 잔과 함께 읽기 좋은 소설입니다...",
-        createdAt: "2025-12-03",
-        coverUrl: "https://via.placeholder.com/300",
-    },
-];
+import { Container, Typography, Button, Paper, Stack, Chip, Divider } from "@mui/material";
+import { useEffect, useState } from "react";
+import api from "../app/axios";
 
 export default function BookDetailPage() {
-    const { id } = useParams(); // 주소창의 :id 부분(숫자)을 가져옵니다.
+    const { id } = useParams(); // /books/:id
     const navigate = useNavigate();
 
-    // 가져온 id와 일치하는 책을 mockBooksData에서 찾습니다.
-    // 주소창의 id는 문자열이라 숫자로 변환(Number)해서 비교합니다.
-    const book = mockBooksData.find((b) => b.id === Number(id));
+    const [book, setBook] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState("");
 
-    if (!book) {
-        return <div style={{ padding: 20 }}>책을 찾을 수 없습니다.</div>;
+    async function fetchBook() {
+        try {
+            const res = await api.get(`/books/${id}`);
+            setBook(res.data.data);
+        } catch (e) {
+            const msg = e.response?.data?.message || "도서 정보를 불러오지 못했습니다.";
+            setError(msg);
+        } finally {
+            setLoading(false);
+        }
     }
 
-    return (
-        <Container maxWidth="sm" sx={{ marginTop: 4 }}>
-            <Paper elevation={3} sx={{ padding: 3 }}>
-                <img
-                    src={book.coverUrl}
-                    alt={book.title}
-                    style={{ width: '100%', borderRadius: '4px', marginBottom: '20px' }}
-                />
-                <Typography variant="h4" gutterBottom>
-                    {book.title}
-                </Typography>
-                <Typography variant="subtitle1" color="text.secondary" gutterBottom>
-                    등록일: {book.createdAt}
-                </Typography>
-                <Typography variant="body1" paragraph sx={{ marginTop: 2 }}>
-                    {book.content}
-                </Typography>
+    useEffect(() => {
+        fetchBook();
+    }, [id]);
 
-                <Button
-                    variant="contained"
-                    onClick={() => navigate('/books')} // 목록으로 돌아가기
-                    sx={{ marginTop: 2 }}
-                >
-                    목록으로
-                </Button>
+    if (loading) return <div style={{ padding: 20 }}>불러오는 중...</div>;
+    if (error) return <div style={{ padding: 20, color: "red" }}>{error}</div>;
+    if (!book) return <div style={{ padding: 20 }}>책을 찾을 수 없습니다.</div>;
+
+    
+    return (
+        <Container maxWidth="md" sx={{ marginTop: 4 }}>
+            <Paper
+                elevation={0}
+                sx={{
+                    p: { xs: 3, md: 4 },
+                    borderRadius: 4,
+                    border: "1px solid #e5e7eb",
+                    boxShadow: "0 16px 38px rgba(15, 23, 42, 0.1)",
+                }}
+            >
+                <Stack spacing={2.5}>
+                    {book.coverUrl ? (
+                        <img
+                            src={book.coverUrl}
+                            alt={book.title}
+                            style={{ width: "100%", borderRadius: "12px" }}
+                        />
+                    ) : null}
+
+                    <Stack spacing={1}>
+                        <Chip
+                            label={book.category || "카테고리 미정"}
+                            color="primary"
+                            variant="outlined"
+                            sx={{ alignSelf: "flex-start" }}
+                        />
+                        <Typography variant="h4" fontWeight={800}>
+                            {book.title}
+                        </Typography>
+                        <Typography variant="subtitle1" color="text.secondary">
+                            {book.author}
+                        </Typography>
+                    </Stack>
+
+                    <Divider />
+
+                    <Typography variant="body1" color="text.primary" sx={{ whiteSpace: "pre-line" }}>
+                        {book.description || "등록된 설명이 없습니다."}
+                    </Typography>
+
+                    <Stack direction={{ xs: "column", sm: "row" }} spacing={1.5}>
+                        <Button variant="contained" onClick={() => navigate("/books")}>{
+                            "목록으로"
+                        }</Button>
+                        <Button variant="outlined" onClick={() => navigate(`/books/${book.bookId}`)}>
+                            새로고침
+                        </Button>
+                    </Stack>
+                </Stack>
             </Paper>
         </Container>
     );
