@@ -5,13 +5,14 @@ import { useEffect, useState } from "react";
 import api from "../app/axios";
 
 export default function BookDetailPage() {
-    const { id } = useParams(); // /books/:id
+    const { id } = useParams(); // URL 파라미터 (/books/:id)
     const navigate = useNavigate();
 
     const [book, setBook] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
 
+    // 1. 도서 정보 가져오기
     async function fetchBook() {
         try {
             const res = await api.get(`/books/${id}`);
@@ -27,6 +28,28 @@ export default function BookDetailPage() {
     useEffect(() => {
         fetchBook();
     }, [id]);
+
+    // 2. 삭제 기능 핸들러
+    const handleDelete = async () => {
+        // 사용자에게 확인 받기
+        if (!window.confirm("정말로 이 책을 삭제하시겠습니까?")) return;
+
+        try {
+            // API 호출: DELETE /books/{id}
+            await api.delete(`/books/${id}`);
+            alert("삭제되었습니다.");
+            navigate("/books"); // 삭제 후 목록으로 이동
+        } catch (e) {
+            console.error(e);
+            alert("삭제에 실패했습니다.");
+        }
+    };
+
+    // 3. 수정 페이지 이동 핸들러
+    const handleEdit = () => {
+        // 수정 페이지로 이동 (라우터 설정이 되어 있어야 함)
+        navigate(`/books/edit/${id}`);
+    };
 
     if (loading) return <div style={{ padding: 20 }}>불러오는 중...</div>;
     if (error) return <div style={{ padding: 20, color: "red" }}>{error}</div>;
@@ -63,7 +86,7 @@ export default function BookDetailPage() {
                             {book.title}
                         </Typography>
                         <Typography variant="subtitle1" color="text.secondary">
-                            {book.author}
+                            {book.authorName}
                         </Typography>
                     </Stack>
 
@@ -73,12 +96,31 @@ export default function BookDetailPage() {
                         {book.description || "등록된 설명이 없습니다."}
                     </Typography>
 
+                    {/* 버튼 영역 수정 */}
                     <Stack direction={{ xs: "column", sm: "row" }} spacing={1.5}>
-                        <Button variant="contained" onClick={() => navigate("/books")}>{
-                            "목록으로"
-                        }</Button>
-                        <Button variant="outlined" onClick={() => navigate(`/books/${book.bookId}`)}>
-                            새로고침
+                        <Button
+                            variant="outlined"
+                            onClick={() => navigate("/books")}
+                        >
+                            목록으로
+                        </Button>
+
+                        {/* 수정 버튼 (파란색 계열 권장) */}
+                        <Button
+                            variant="outlined"
+                            color="info" // 또는 primary
+                            onClick={handleEdit}
+                        >
+                            수정
+                        </Button>
+
+                        {/* 삭제 버튼 (빨간색 계열 권장) */}
+                        <Button
+                            variant="outlined"
+                            color="error"
+                            onClick={handleDelete}
+                        >
+                            삭제
                         </Button>
                     </Stack>
                 </Stack>
