@@ -15,6 +15,12 @@ import {
 import LibraryBooksOutlinedIcon from '@mui/icons-material/LibraryBooksOutlined';
 import LoginOutlinedIcon from '@mui/icons-material/LoginOutlined';
 
+// 테스트 계정 정의
+const TEST_ACCOUNTS = [
+    { email: 'tester1234@test.com', password: 'test1234', userId: 'tester1234' },
+    { email: 'admin@test.com', password: 'admin1234', userId: 'admin' },
+];
+
 export default function Login() {
     const navigate = useNavigate();
 
@@ -40,21 +46,27 @@ export default function Login() {
             return;
         }
 
-        try {
-            setLoading(true);
-            // API 호출 예시
-            // const res = await api.post('/auth/login', form);
-            // localStorage.setItem('token', res.data.token);
-            // localStorage.setItem('userId', res.data.userId);
+        setLoading(true);
 
-            // 임시 로그인 처리
-            localStorage.setItem('userId', 'TEMP_USER_ID');
-            navigate('/');
-        } catch (err) {
-            setError(err.response?.data?.message || '로그인 중 오류가 발생했습니다.');
-        } finally {
+        // 테스트 계정 확인
+        setTimeout(() => {
+            const account = TEST_ACCOUNTS.find(
+                acc => acc.email === form.email && acc.password === form.password
+            );
+
+            if (account) {
+                // 로그인 성공
+                localStorage.setItem('userId', account.userId);
+                localStorage.setItem('userEmail', account.email);
+
+                // 페이지 새로고침하여 Header 상태 업데이트
+                window.location.href = '/';
+            } else {
+                // 로그인 실패
+                setError('이메일 또는 비밀번호가 일치하지 않습니다.');
+            }
             setLoading(false);
-        }
+        }, 500); // 로딩 효과를 위한 약간의 딜레이
     };
 
     return (
@@ -103,6 +115,17 @@ export default function Login() {
 
                     <Divider />
 
+                    {/* 테스트 계정 안내 */}
+                    <Alert severity="info" sx={{ borderRadius: 3 }}>
+                        <Typography variant="body2" fontWeight={600} gutterBottom>
+                            테스트 계정 안내
+                        </Typography>
+                        <Typography variant="body2">
+                            • 이메일: tester1234@test.com<br />
+                            • 비밀번호: test1234
+                        </Typography>
+                    </Alert>
+
                     {/* 에러 메시지 */}
                     {error && (
                         <Alert severity="error" sx={{ borderRadius: 3 }}>
@@ -122,7 +145,7 @@ export default function Login() {
                                 required
                                 value={form.email}
                                 onChange={handleChange}
-                                placeholder="example@email.com"
+                                placeholder="tester1234@test.com"
                                 autoComplete="email"
                             />
                             <TextField
@@ -153,33 +176,6 @@ export default function Login() {
                         </Stack>
                     </form>
 
-                    <Divider>
-                        <Typography variant="body2" color="text.secondary">
-                            또는
-                        </Typography>
-                    </Divider>
-
-                    {/* 추가 액션 */}
-                    <Stack spacing={1.5}>
-                        <Button
-                            variant="outlined"
-                            color="secondary"
-                            size="large"
-                            fullWidth
-                            onClick={() => navigate('/signup')}
-                        >
-                            회원가입
-                        </Button>
-                        <Button
-                            variant="text"
-                            size="small"
-                            onClick={() => navigate('/forgot-password')}
-                            sx={{ textTransform: 'none' }}
-                        >
-                            비밀번호를 잊으셨나요?
-                        </Button>
-                    </Stack>
-
                     {/* 안내 메시지 */}
                     <Paper
                         variant="outlined"
@@ -191,7 +187,7 @@ export default function Login() {
                         }}
                     >
                         <Typography variant="body2" color="text.secondary">
-                            💡 계정이 없으시다면 회원가입 후 팀 도서관의 모든 기능을 이용하실 수 있습니다.
+                            💡 위의 테스트 계정으로 로그인하여 도서 관리 시스템의 모든 기능을 체험해보세요.
                         </Typography>
                     </Paper>
                 </Stack>
